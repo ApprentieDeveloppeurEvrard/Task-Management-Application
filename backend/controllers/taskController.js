@@ -24,7 +24,32 @@ const createTask = async (req, res) => {
 // Obtenir toutes les tâches de l'utilisateur
 const getTasks = async (req, res) => {
   try {
-    const tasks = await Task.find({ user: req.user._id });
+    const { status, search, sortBy, sortOrder } = req.query;
+    const query = { user: req.user._id };
+    const sort = {};
+
+    if (status) {
+      query.completed = status === 'terminé';
+    }
+
+    if (search) {
+      query.$or = [
+        { title: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    if (sortBy) {
+      let sortField = sortBy;
+      if (sortBy === 'status') {
+        sortField = 'completed'; // Mapper 'status' à 'completed' pour le tri
+      }
+      sort[sortField] = sortOrder === 'asc' ? 1 : -1;
+    } else {
+      sort.createdAt = -1; // Tri par défaut
+    }
+
+    const tasks = await Task.find(query).sort(sort);
     res.json(tasks);
   } catch (error) {
     res.status(500).json({ error: error.message });
