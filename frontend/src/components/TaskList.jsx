@@ -37,6 +37,7 @@ const TaskList = () => {
     dueDate: '',
     status: 'à faire'
   });
+  const [formError, setFormError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -99,22 +100,30 @@ const TaskList = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log('handleSubmit appelé');
+    setFormError('');
     try {
       // Mapping du status vers completed pour le backend
       const dataToSend = {
         ...formData,
         completed: formData.status === 'terminé',
+        dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
       };
       delete dataToSend.status;
-      if (currentTask) {
-        await taskService.updateTask(currentTask._id, dataToSend);
-      } else {
-        await taskService.createTask(dataToSend);
-      }
+      console.log('Données de la tâche à envoyer:', dataToSend);
+      console.log('Appel de createTask');
+      await taskService.createTask(dataToSend);
       handleCloseDialog();
       fetchTasks();
     } catch (error) {
-      console.error('Erreur lors de la sauvegarde de la tâche:', error);
+      console.error('Erreur frontend lors de la sauvegarde de la tâche:', error);
+      let msg = 'Erreur lors de la sauvegarde de la tâche';
+      if (error.response && error.response.data && error.response.data.error) {
+        msg = error.response.data.error;
+      } else if (error.message) {
+        msg = error.message;
+      }
+      setFormError(msg);
     }
   };
 
@@ -183,12 +192,12 @@ const TaskList = () => {
                   }
                 />
                 <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => handleOpenDialog(task)}>
+                  {/* <IconButton edge="end" onClick={() => handleOpenDialog(task)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton edge="end" onClick={() => handleDelete(task._id)}>
                     <DeleteIcon />
-                  </IconButton>
+                  </IconButton> */}
                 </ListItemSecondaryAction>
               </ListItem>
             ))
@@ -198,9 +207,14 @@ const TaskList = () => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}
+          {/* {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'} */} Nouvelle tâche
         </DialogTitle>
         <DialogContent>
+          {formError && (
+            <Typography color="error" align="center" gutterBottom>
+              {formError}
+            </Typography>
+          )}
           <Box component="form" onSubmit={handleSubmit} sx={{ mt: 2 }}>
             <TextField
               fullWidth
@@ -244,14 +258,14 @@ const TaskList = () => {
               <MenuItem value="en cours">En cours</MenuItem>
               <MenuItem value="terminé">Terminé</MenuItem>
             </TextField>
+            <DialogActions>
+              <Button onClick={handleCloseDialog}>Annuler</Button>
+              <Button type="submit" variant="contained">
+                {/* {currentTask ? 'Modifier' : 'Créer'} */}
+              </Button>
+            </DialogActions>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={handleCloseDialog}>Annuler</Button>
-          <Button onClick={handleSubmit} variant="contained">
-            {currentTask ? 'Modifier' : 'Créer'}
-          </Button>
-        </DialogActions>
       </Dialog>
     </Box>
   );
