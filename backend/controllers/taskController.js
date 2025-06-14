@@ -31,7 +31,6 @@ const getTasks = async (req, res) => {
   }
 };
 
-/*
 // Mettre à jour une tâche
 const updateTask = async (req, res) => {
   try {
@@ -60,11 +59,10 @@ const deleteTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-*/
 
 module.exports = {
   createTask,
   getTasks,
-  // updateTask,
-  // deleteTask
+  updateTask,
+  deleteTask
 }; 
