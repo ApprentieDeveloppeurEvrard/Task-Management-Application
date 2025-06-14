@@ -53,7 +53,6 @@ export const taskService = {
   },
 
   // Mettre à jour une tâche
-  /*
   async updateTask(id, taskData) {
     try {
       const response = await fetch(API_ENDPOINTS.TASK(id), {
@@ -73,10 +72,8 @@ export const taskService = {
       throw error;
     }
   },
-  */
 
   // Supprimer une tâche
-  /*
   async deleteTask(id) {
     try {
       const response = await fetch(API_ENDPOINTS.TASK(id), {
@@ -95,5 +92,4 @@ export const taskService = {
       throw error;
     }
   }
-  */
 }; 

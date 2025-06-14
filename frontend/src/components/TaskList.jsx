@@ -111,8 +111,13 @@ const TaskList = () => {
       };
       delete dataToSend.status;
       console.log('Données de la tâche à envoyer:', dataToSend);
-      console.log('Appel de createTask');
-      await taskService.createTask(dataToSend);
+      if (currentTask) {
+        console.log('Appel de updateTask');
+        await taskService.updateTask(currentTask._id, dataToSend);
+      } else {
+        console.log('Appel de createTask');
+        await taskService.createTask(dataToSend);
+      }
       handleCloseDialog();
       fetchTasks();
     } catch (error) {
@@ -192,12 +197,12 @@ const TaskList = () => {
                   }
                 />
                 <ListItemSecondaryAction>
-                  {/* <IconButton edge="end" onClick={() => handleOpenDialog(task)}>
+                  <IconButton edge="end" onClick={() => handleOpenDialog(task)}>
                     <EditIcon />
                   </IconButton>
                   <IconButton edge="end" onClick={() => handleDelete(task._id)}>
                     <DeleteIcon />
-                  </IconButton> */}
+                  </IconButton>
                 </ListItemSecondaryAction>
               </ListItem>
             ))
@@ -207,7 +212,7 @@ const TaskList = () => {
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
-          {/* {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'} */} Nouvelle tâche
+          {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}
         </DialogTitle>
         <DialogContent>
           {formError && (
@@ -261,7 +266,7 @@ const TaskList = () => {
             <DialogActions>
               <Button onClick={handleCloseDialog}>Annuler</Button>
               <Button type="submit" variant="contained">
-                {/* {currentTask ? 'Modifier' : 'Créer'} */}
+                {currentTask ? 'Modifier' : 'Créer'}
               </Button>
             </DialogActions>
           </Box>
