@@ -10,7 +10,14 @@ const createTask = async (req, res) => {
     await task.save();
     res.status(201).json(task);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Erreur backend lors de la création de tâche:', error);
+    let errorMessage = 'Erreur lors de la création de la tâche';
+    if (error.name === 'ValidationError') {
+      errorMessage = Object.values(error.errors)
+        .map(err => err.message)
+        .join('; ');
+    }
+    res.status(400).json({ error: errorMessage });
   }
 };
 
@@ -24,6 +31,7 @@ const getTasks = async (req, res) => {
   }
 };
 
+/*
 // Mettre à jour une tâche
 const updateTask = async (req, res) => {
   try {
@@ -52,10 +60,11 @@ const deleteTask = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+*/
 
 module.exports = {
   createTask,
   getTasks,
-  updateTask,
-  deleteTask
+  // updateTask,
+  // deleteTask
 }; 

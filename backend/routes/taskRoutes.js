@@ -12,7 +12,7 @@ router.use(auth); // Protège toutes les routes des tâches
 
 router.post('/', createTask);
 router.get('/', getTasks);
-router.patch('/:id', updateTask);
-router.delete('/:id', deleteTask);
+// router.patch('/:id', updateTask);
+// router.delete('/:id', deleteTask);
 
 module.exports = router; 
