@@ -15,7 +15,10 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  CircularProgress
+  CircularProgress,
+  FormControl,
+  InputLabel,
+  Select,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -38,12 +41,16 @@ const TaskList = () => {
     status: 'à faire'
   });
   const [formError, setFormError] = useState('');
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'à faire', 'terminé'
+  const [searchTerm, setSearchTerm] = useState('');
+  const [sortBy, setSortBy] = useState('createdAt'); // 'createdAt', 'dueDate', 'title', 'status'
+  const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
     // eslint-disable-next-line
-  }, []);
+  }, [filterStatus, searchTerm, sortBy, sortOrder]); // Dépendances pour re-fetch
 
   // Convertit le champ completed du backend en status pour l'affichage
   const mapTaskFromBackend = (task) => ({
@@ -53,7 +60,16 @@ const TaskList = () => {
 
   const fetchTasks = async () => {
     try {
-      const tasks = await taskService.getTasks();
+      const params = {
+        status: filterStatus !== 'all' ? filterStatus : undefined,
+        search: searchTerm || undefined,
+        sortBy,
+        sortOrder,
+      };
+      // Nettoie les paramètres undefined
+      Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
+
+      const tasks = await taskService.getTasks(params);
       setTasks(tasks.map(mapTaskFromBackend));
     } catch (error) {
       if (error.message && error.message.toLowerCase().includes('auth')) {
@@ -165,6 +181,54 @@ const TaskList = () => {
         >
           Nouvelle tâche
         </Button>
+      </Box>
+
+      {/* Filtres et Tri */}
+      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+        <TextField
+          label="Rechercher"
+          variant="outlined"
+          size="small"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          sx={{ flexGrow: 1, minWidth: 150 }}
+        />
+        <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Statut</InputLabel>
+          <Select
+            value={filterStatus}
+            onChange={(e) => setFilterStatus(e.target.value)}
+            label="Statut"
+          >
+            <MenuItem value="all">Tous</MenuItem>
+            <MenuItem value="à faire">À faire</MenuItem>
+            <MenuItem value="terminé">Terminé</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+          <InputLabel>Trier par</InputLabel>
+          <Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            label="Trier par"
+          >
+            <MenuItem value="createdAt">Date de création</MenuItem>
+            <MenuItem value="dueDate">Date d'échéance</MenuItem>
+            <MenuItem value="title">Titre</MenuItem>
+            <MenuItem value="status">Statut</MenuItem>
+          </Select>
+        </FormControl>
+        <FormControl variant="outlined" size="small" sx={{ minWidth: 100 }}>
+          <InputLabel>Ordre</InputLabel>
+          <Select
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+            label="Ordre"
+          >
+            <MenuItem value="asc">Croissant</MenuItem>
+            <MenuItem value="desc">Décroissant</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
 
       <Paper elevation={3}>

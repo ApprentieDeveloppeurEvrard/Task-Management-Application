@@ -12,9 +12,12 @@ const getAuthConfig = () => ({
 
 export const taskService = {
   // Récupérer toutes les tâches
-  async getTasks() {
+  async getTasks(params = {}) {
     try {
-      const response = await fetch(API_ENDPOINTS.TASKS, {
+      const query = new URLSearchParams(params).toString();
+      const url = `${API_ENDPOINTS.TASKS}${query ? `?${query}` : ''}`;
+
+      const response = await fetch(url, {
         method: 'GET',
         ...getAuthConfig()
       });
