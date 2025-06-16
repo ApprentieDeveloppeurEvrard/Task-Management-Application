@@ -23,11 +23,12 @@ import {
 import {
   Delete as DeleteIcon,
   Edit as EditIcon,
-  Add as AddIcon
+  Add as AddIcon,
+  Logout as LogoutIcon,
 } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { taskService } from '../services';
+import { taskService, authService } from '../services';
 
 const TaskList = () => {
   const [tasks, setTasks] = useState([]);
@@ -51,6 +52,11 @@ const TaskList = () => {
     fetchTasks();
     // eslint-disable-next-line
   }, [filterStatus, searchTerm, sortBy, sortOrder]); // Dépendances pour re-fetch
+
+  const handleLogout = () => {
+    authService.logout();
+    navigate('/login');
+  };
 
   // Convertit le champ completed du backend en status pour l'affichage
   const mapTaskFromBackend = (task) => ({
@@ -174,13 +180,23 @@ const TaskList = () => {
         <Typography variant="h4" component="h1">
           Mes tâches
         </Typography>
-        <Button
-          variant="contained"
-          startIcon={<AddIcon />}
-          onClick={() => handleOpenDialog()}
-        >
-          Nouvelle tâche
-        </Button>
+        <Box>
+          <Button
+            variant="contained"
+            startIcon={<AddIcon />}
+            onClick={() => handleOpenDialog()}
+          >
+            Nouvelle tâche
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<LogoutIcon />}
+            onClick={handleLogout}
+            sx={{ ml: 2 }}
+          >
+            Déconnexion
+          </Button>
+        </Box>
       </Box>
 
       {/* Filtres et Tri */}
