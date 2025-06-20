@@ -26,7 +26,6 @@ import {
   Add as AddIcon,
   Logout as LogoutIcon,
 } from '@mui/icons-material';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { taskService, authService } from '../services';
 
@@ -42,23 +41,22 @@ const TaskList = () => {
     status: 'à faire'
   });
   const [formError, setFormError] = useState('');
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'à faire', 'terminé'
+  const [filterStatus, setFilterStatus] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [sortBy, setSortBy] = useState('createdAt'); // 'createdAt', 'dueDate', 'title', 'status'
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const [sortBy, setSortBy] = useState('createdAt');
+  const [sortOrder, setSortOrder] = useState('desc');
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchTasks();
     // eslint-disable-next-line
-  }, [filterStatus, searchTerm, sortBy, sortOrder]); // Dépendances pour re-fetch
+  }, [filterStatus, searchTerm, sortBy, sortOrder]);
 
   const handleLogout = () => {
     authService.logout();
     navigate('/login');
   };
 
-  // Convertit le champ completed du backend en status pour l'affichage
   const mapTaskFromBackend = (task) => ({
     ...task,
     status: task.completed ? 'terminé' : 'à faire',
@@ -72,7 +70,6 @@ const TaskList = () => {
         sortBy,
         sortOrder,
       };
-      // Nettoie les paramètres undefined
       Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
       const tasks = await taskService.getTasks(params);
@@ -122,22 +119,18 @@ const TaskList = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log('handleSubmit appelé');
     setFormError('');
     try {
-      // Mapping du status vers completed pour le backend
       const dataToSend = {
         ...formData,
         completed: formData.status === 'terminé',
         dueDate: formData.dueDate ? new Date(formData.dueDate).toISOString() : undefined,
       };
       delete dataToSend.status;
-      console.log('Données de la tâche à envoyer:', dataToSend);
+
       if (currentTask) {
-        console.log('Appel de updateTask');
         await taskService.updateTask(currentTask._id, dataToSend);
       } else {
-        console.log('Appel de createTask');
         await taskService.createTask(dataToSend);
       }
       handleCloseDialog();
@@ -145,7 +138,7 @@ const TaskList = () => {
     } catch (error) {
       console.error('Erreur frontend lors de la sauvegarde de la tâche:', error);
       let msg = 'Erreur lors de la sauvegarde de la tâche';
-      if (error.response && error.response.data && error.response.data.error) {
+      if (error.response?.data?.error) {
         msg = error.response.data.error;
       } else if (error.message) {
         msg = error.message;
@@ -156,11 +149,7 @@ const TaskList = () => {
 
   const handleDelete = async (taskId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${import.meta.env.VITE_API_URL}/api/tasks/${taskId}`, {
-  headers: { Authorization: `Bearer ${token}` }
-});
-
+      await taskService.deleteTask(taskId);
       fetchTasks();
     } catch (error) {
       console.error('Erreur lors de la suppression de la tâche:', error);
@@ -178,29 +167,17 @@ const TaskList = () => {
   return (
     <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, px: 2 }}>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-        <Typography variant="h4" component="h1">
-          Mes tâches
-        </Typography>
+        <Typography variant="h4" component="h1">Mes tâches</Typography>
         <Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
+          <Button variant="contained" startIcon={<AddIcon />} onClick={() => handleOpenDialog()}>
             Nouvelle tâche
           </Button>
-          <Button
-            variant="outlined"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-            sx={{ ml: 2 }}
-          >
+          <Button variant="outlined" startIcon={<LogoutIcon />} onClick={handleLogout} sx={{ ml: 2 }}>
             Déconnexion
           </Button>
         </Box>
       </Box>
 
-      {/* Filtres et Tri */}
       <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
         <TextField
           label="Rechercher"
@@ -212,11 +189,7 @@ const TaskList = () => {
         />
         <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
           <InputLabel>Statut</InputLabel>
-          <Select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            label="Statut"
-          >
+          <Select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} label="Statut">
             <MenuItem value="all">Tous</MenuItem>
             <MenuItem value="à faire">À faire</MenuItem>
             <MenuItem value="terminé">Terminé</MenuItem>
@@ -224,11 +197,7 @@ const TaskList = () => {
         </FormControl>
         <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
           <InputLabel>Trier par</InputLabel>
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            label="Trier par"
-          >
+          <Select value={sortBy} onChange={(e) => setSortBy(e.target.value)} label="Trier par">
             <MenuItem value="createdAt">Date de création</MenuItem>
             <MenuItem value="dueDate">Date d'échéance</MenuItem>
             <MenuItem value="title">Titre</MenuItem>
@@ -237,11 +206,7 @@ const TaskList = () => {
         </FormControl>
         <FormControl variant="outlined" size="small" sx={{ minWidth: 100 }}>
           <InputLabel>Ordre</InputLabel>
-          <Select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            label="Ordre"
-          >
+          <Select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)} label="Ordre">
             <MenuItem value="asc">Croissant</MenuItem>
             <MenuItem value="desc">Décroissant</MenuItem>
           </Select>
@@ -292,9 +257,7 @@ const TaskList = () => {
       </Paper>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}
-        </DialogTitle>
+        <DialogTitle>{currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}</DialogTitle>
         <DialogContent>
           {formError && (
             <Typography color="error" align="center" gutterBottom>
