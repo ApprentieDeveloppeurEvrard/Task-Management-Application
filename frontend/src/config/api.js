@@ -2,12 +2,12 @@ const API_URL = import.meta.env.VITE_API_URL || 'https://task-management-applica
 
 export const API_ENDPOINTS = {
   // Auth
-  REGISTER: `${API_URL}/auth/register`,
-  LOGIN: `${API_URL}/auth/login`,
+  REGISTER: `${API_URL}/api/auth/register`,
+  LOGIN: `${API_URL}/api/auth/login`,
   
   // Tasks
-  TASKS: `${API_URL}/tasks`,
-  TASK: (id) => `${API_URL}/tasks/${id}`,
+  TASKS: `${API_URL}/api/tasks`,
+  TASK: (id) => `${API_URL}/api/tasks/${id}`,
 };
 
 export const API_CONFIG = {
@@ -15,4 +15,4 @@ export const API_CONFIG = {
     'Content-Type': 'application/json',
   },
   credentials: 'include',
-}; 
+};
