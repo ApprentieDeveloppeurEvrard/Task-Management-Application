@@ -157,9 +157,10 @@ const TaskList = () => {
   const handleDelete = async (taskId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/tasks/${taskId}`, {
+  headers: { Authorization: `Bearer ${token}` }
+});
+
       fetchTasks();
     } catch (error) {
       console.error('Erreur lors de la suppression de la tâche:', error);
