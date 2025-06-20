@@ -10,7 +10,9 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: 'https://task-management-application-ixiw.onrender.com', // Port par défaut de Vite
+  origin: process.env.NODE_ENV === 'production' 
+    ? process.env.FRONTEND_URL 
+    : 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
