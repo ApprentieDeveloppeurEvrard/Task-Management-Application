@@ -12,7 +12,7 @@ const app = express();
 app.use(cors({
   origin: process.env.NODE_ENV === 'production' 
     ? process.env.FRONTEND_URL 
-    : 'https://task-management-application-1-b15o.onrender.com',
+    : 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
