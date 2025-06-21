@@ -21,6 +21,7 @@ import {
   Select,
   useTheme,
   useMediaQuery,
+  Divider,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -48,9 +49,22 @@ const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt'); // 'createdAt', 'dueDate', 'title', 'status'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const [userName, setUserName] = useState('');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      try {
+        const user = JSON.parse(storedUser);
+        setUserName(user.username);
+      } catch (e) {
+        console.error("Failed to parse user from localStorage", e);
+      }
+    }
+  }, []);
 
   useEffect(() => {
     fetchTasks();
@@ -186,18 +200,24 @@ const TaskList = () => {
       boxSizing: 'border-box',
       py: 2
     }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} sx={{ flexShrink: 0 }}>
-        <Typography variant="h4" component="h1">
+
+      <Box sx={{ flexShrink: 0, mb: 3 }}>
+        <Box display="flex" justifyContent="space-between" alignItems="center">
+          <Typography variant="h5" component="h1">
+            Salut {userName}
+          </Typography>
+          <Box>
+            <IconButton color="primary" onClick={() => handleOpenDialog()}>
+              <AddIcon />
+            </IconButton>
+            <IconButton color="primary" onClick={handleLogout} sx={{ ml: 1 }}>
+              <LogoutIcon />
+            </IconButton>
+          </Box>
+        </Box>
+        <Typography variant="h6" component="h2" color="text.secondary" sx={{ mt: 1 }}>
           Mes tâches
         </Typography>
-        <Box>
-          <IconButton color="primary" onClick={() => handleOpenDialog()}>
-            <AddIcon />
-          </IconButton>
-          <IconButton color="primary" onClick={handleLogout} sx={{ ml: 1 }}>
-            <LogoutIcon />
-          </IconButton>
-        </Box>
       </Box>
 
       {/* Filtres et tris */}
@@ -250,47 +270,46 @@ const TaskList = () => {
         </Box>
       </Paper>
 
-      <Paper elevation={3} sx={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}>
-        <List>
-          {tasks.length === 0 ? (
-            <ListItem>
-              <ListItemText primary="Aucune tâche pour le moment" />
-            </ListItem>
-          ) : (
-            tasks.map((task) => (
-              <ListItem key={task._id} divider>
-                <ListItemText
-                  primary={task.title}
-                  secondary={
-                    <>
-                      <Typography component="span" variant="body2" color="text.primary">
-                        {task.description}
-                      </Typography>
-                      <br />
-                      {task.dueDate && (
-                        <Typography component="span" variant="body2" color="text.secondary">
-                          Échéance: {new Date(task.dueDate).toLocaleDateString()}
-                        </Typography>
-                      )}
-                      <br />
-                      <Typography component="span" variant="body2" color="text.secondary">
-                        Statut: {task.status}
-                      </Typography>
-                    </>
-                  }
-                />
-                <ListItemSecondaryAction>
-                  <IconButton edge="end" onClick={() => handleOpenDialog(task)}>
-                    <EditIcon />
-                  </IconButton>
-                  <IconButton edge="end" onClick={() => handleDelete(task._id)}>
-                    <DeleteIcon />
-                  </IconButton>
-                </ListItemSecondaryAction>
-              </ListItem>
-            ))
-          )}
-        </List>
+      <Paper
+        elevation={3}
+        sx={{
+          flexGrow: 1,
+          overflowY: 'auto',
+          minHeight: 0,
+        }}
+      >
+        {tasks.length > 0 ? (
+          <List sx={{ py: 0 }}>
+            {tasks.map((task) => (
+              <React.Fragment key={task._id}>
+                <ListItem sx={{ py: 0.5 }}>
+                  <ListItemText
+                    primaryTypographyProps={{ fontSize: '1rem', fontWeight: '500' }}
+                    secondaryTypographyProps={{ fontSize: '0.875rem' }}
+                    primary={task.title}
+                    secondary={
+                      `Statut: ${task.status}` +
+                      (task.dueDate ? ` - À faire avant le: ${new Date(task.dueDate).toLocaleDateString()}` : '')
+                    }
+                  />
+                  <ListItemSecondaryAction>
+                    <IconButton edge="end" aria-label="edit" onClick={() => handleOpenDialog(task)} sx={{ p: 0.5 }}>
+                      <EditIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)} sx={{ p: 0.5, ml: 1 }}>
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </ListItemSecondaryAction>
+                </ListItem>
+                <Divider />
+              </React.Fragment>
+            ))}
+          </List>
+        ) : (
+          <Box display="flex" justifyContent="center" alignItems="center" height="100%">
+            <Typography color="text.secondary">Aucune tâche pour le moment</Typography>
+          </Box>
+        )}
       </Paper>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>

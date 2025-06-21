@@ -26,12 +26,10 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Empêche le défilement du corps de la page */
+  overflow: hidden;
 }
 
 body {
-  /* display: flex; */
-  /* place-items: center; */
   min-width: 320px;
 }
 
