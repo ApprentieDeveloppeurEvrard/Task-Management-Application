@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || 'https://task-management-application-ixiw.onrender.com';
+const API_URL = import.meta.env.VITE_API_URL || 'https://task-management-application-ixiw.onrender.com/api';
 
 export const API_ENDPOINTS = {
   // Auth
