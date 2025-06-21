@@ -157,7 +157,7 @@ const TaskList = () => {
   const handleDelete = async (taskId) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
+      await axios.delete(`https://task-management-application-ixiw.onrender.com/api/tasks/${taskId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       fetchTasks();
