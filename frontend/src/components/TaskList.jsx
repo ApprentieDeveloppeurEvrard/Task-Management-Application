@@ -156,10 +156,7 @@ const TaskList = () => {
 
   const handleDelete = async (taskId) => {
     try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`http://localhost:5000/api/tasks/${taskId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      await taskService.deleteTask(taskId);
       fetchTasks();
     } catch (error) {
       console.error('Erreur lors de la suppression de la tâche:', error);
