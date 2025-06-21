@@ -19,6 +19,8 @@ import {
   FormControl,
   InputLabel,
   Select,
+  useTheme,
+  useMediaQuery,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -46,6 +48,8 @@ const TaskList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('createdAt'); // 'createdAt', 'dueDate', 'title', 'status'
   const [sortOrder, setSortOrder] = useState('desc'); // 'asc', 'desc'
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -172,79 +176,81 @@ const TaskList = () => {
   }
 
   return (
-    <Box sx={{ maxWidth: 800, mx: 'auto', mt: 4, px: 2 }}>
-      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+    <Box sx={{
+      maxWidth: 800,
+      mx: 'auto',
+      px: 2,
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      boxSizing: 'border-box',
+      py: 2
+    }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={3} sx={{ flexShrink: 0 }}>
         <Typography variant="h4" component="h1">
           Mes tâches
         </Typography>
         <Box>
-          <Button
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => handleOpenDialog()}
-          >
-            Nouvelle tâche
-          </Button>
-          <Button
-            variant="outlined"
-            startIcon={<LogoutIcon />}
-            onClick={handleLogout}
-            sx={{ ml: 2 }}
-          >
-            Déconnexion
-          </Button>
+          <IconButton color="primary" onClick={() => handleOpenDialog()}>
+            <AddIcon />
+          </IconButton>
+          <IconButton color="primary" onClick={handleLogout} sx={{ ml: 1 }}>
+            <LogoutIcon />
+          </IconButton>
         </Box>
       </Box>
 
-      {/* Filtres et Tri */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <TextField
-          label="Rechercher"
-          variant="outlined"
-          size="small"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: 150 }}
-        />
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Statut</InputLabel>
-          <Select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            label="Statut"
-          >
-            <MenuItem value="all">Tous</MenuItem>
-            <MenuItem value="à faire">À faire</MenuItem>
-            <MenuItem value="terminé">Terminé</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
-          <InputLabel>Trier par</InputLabel>
-          <Select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            label="Trier par"
-          >
-            <MenuItem value="createdAt">Date de création</MenuItem>
-            <MenuItem value="dueDate">Date d'échéance</MenuItem>
-            <MenuItem value="title">Titre</MenuItem>
-            <MenuItem value="status">Statut</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl variant="outlined" size="small" sx={{ minWidth: 100 }}>
-          <InputLabel>Ordre</InputLabel>
-          <Select
-            value={sortOrder}
-            onChange={(e) => setSortOrder(e.target.value)}
-            label="Ordre"
-          >
-            <MenuItem value="asc">Croissant</MenuItem>
-            <MenuItem value="desc">Décroissant</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
+      {/* Filtres et tris */}
+      <Paper sx={{ p: 2, mb: 3, flexShrink: 0 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+          <TextField
+            label="Rechercher"
+            variant="outlined"
+            size="small"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            sx={{ flexGrow: 1, minWidth: 150 }}
+          />
+          <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Statut</InputLabel>
+            <Select
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              label="Statut"
+            >
+              <MenuItem value="all">Tous</MenuItem>
+              <MenuItem value="à faire">À faire</MenuItem>
+              <MenuItem value="terminé">Terminé</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Trier par</InputLabel>
+            <Select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              label="Trier par"
+            >
+              <MenuItem value="createdAt">Date de création</MenuItem>
+              <MenuItem value="dueDate">Date d'échéance</MenuItem>
+              <MenuItem value="title">Titre</MenuItem>
+              <MenuItem value="status">Statut</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl variant="outlined" size="small" sx={{ minWidth: 100 }}>
+            <InputLabel>Ordre</InputLabel>
+            <Select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value)}
+              label="Ordre"
+            >
+              <MenuItem value="asc">Croissant</MenuItem>
+              <MenuItem value="desc">Décroissant</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+      </Paper>
 
-      <Paper elevation={3}>
+      <Paper elevation={3} sx={{ flexGrow: 1, overflowY: 'auto', minHeight: 0 }}>
         <List>
           {tasks.length === 0 ? (
             <ListItem>
