@@ -1,14 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  List,
-  ListItem,
-  ListItemText,
-  ListItemSecondaryAction,
   IconButton,
   Typography,
   Paper,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -21,7 +16,7 @@ import {
   Select,
   useTheme,
   useMediaQuery,
-  Divider,
+  Button,
 } from '@mui/material';
 import {
   Delete as DeleteIcon,
@@ -270,47 +265,49 @@ const TaskList = () => {
         </Box>
       </Paper>
 
-      <Paper
-        elevation={3}
+      <Box
         sx={{
           flexGrow: 1,
           overflowY: 'auto',
           minHeight: 0,
+          // Masquer la barre de défilement tout en gardant le scroll
         }}
       >
         {tasks.length > 0 ? (
-          <List sx={{ py: 0 }}>
+          <Box>
             {tasks.map((task) => (
-              <React.Fragment key={task._id}>
-                <ListItem sx={{ py: 0.5 }}>
-                  <ListItemText
-                    primaryTypographyProps={{ fontSize: '1rem', fontWeight: '500' }}
-                    secondaryTypographyProps={{ fontSize: '0.875rem' }}
-                    primary={task.title}
-                    secondary={
-                      `Statut: ${task.status}` +
-                      (task.dueDate ? ` - À faire avant le: ${new Date(task.dueDate).toLocaleDateString()}` : '')
-                    }
-                  />
-                  <ListItemSecondaryAction>
+              <Paper key={task._id} elevation={2} sx={{ mb: 1.5, p: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                  <Box sx={{ flexGrow: 1 }}>
+                    <Typography sx={{ fontWeight: '500' }}>{task.title}</Typography>
+                    {task.description && (
+                      <Typography variant="body2" color="text.secondary">
+                        {task.description}
+                      </Typography>
+                    )}
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
+                      {`Statut: ${task.status}`}
+                      {task.dueDate ? ` - À faire avant le: ${new Date(task.dueDate).toLocaleDateString()}` : ''}
+                    </Typography>
+                  </Box>
+                  <Box>
                     <IconButton edge="end" aria-label="edit" onClick={() => handleOpenDialog(task)} sx={{ p: 0.5 }}>
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)} sx={{ p: 0.5, ml: 1 }}>
                       <DeleteIcon fontSize="small" />
                     </IconButton>
-                  </ListItemSecondaryAction>
-                </ListItem>
-                <Divider />
-              </React.Fragment>
+                  </Box>
+                </Box>
+              </Paper>
             ))}
-          </List>
+          </Box>
         ) : (
           <Box display="flex" justifyContent="center" alignItems="center" height="100%">
             <Typography color="text.secondary">Aucune tâche pour le moment</Typography>
           </Box>
         )}
-      </Paper>
+      </Box>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
         <DialogTitle>
