@@ -28,7 +28,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
+      const response = await axios.post('https://task-management-application-ixiw.onrender.com/api/auth/login', formData);
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('user', JSON.stringify(response.data.user));
       navigate('/tasks');
@@ -94,7 +94,7 @@ const Login = () => {
               variant="text"
               onClick={() => navigate('/register')}
             >
-              Pas encore de compte ? S'inscrire
+              Aucun compte ? S'inscrire
             </Button>
           </Box>
         </Paper>
