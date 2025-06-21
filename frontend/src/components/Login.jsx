@@ -7,7 +7,7 @@ import {
   Container,
   Paper
 } from '@mui/material';
-import axios from 'axios';
+import { authService } from '../services/authService';
 import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
@@ -28,12 +28,12 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/login', formData);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
+      const data = await authService.login(formData);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
       navigate('/tasks');
     } catch (err) {
-      setError(err.response?.data?.message || 'Une erreur est survenue');
+      setError(err.message || 'Une erreur est survenue');
     }
   };
 
