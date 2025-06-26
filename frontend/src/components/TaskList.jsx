@@ -16,6 +16,7 @@ import {
   Select,
   useTheme,
   useMediaQuery,
+  Tooltip,
   Button,
 } from '@mui/material';
 import {
@@ -23,6 +24,10 @@ import {
   Edit as EditIcon,
   Add as AddIcon,
   Logout as LogoutIcon,
+  Search as SearchIcon,
+  FilterList as FilterListIcon,
+  Sort as SortIcon,
+  SwapVert as SwapVertIcon,
 } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -57,6 +62,24 @@ const TaskList = () => {
         setUserName(user.username);
       } catch (e) {
         console.error("Failed to parse user from localStorage", e);
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    // Vérification expiration du token
+    const token = localStorage.getItem('token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) {
+          authService.logout();
+          navigate('/login');
+        }
+      } catch (e) {
+        // Token mal formé, on déconnecte par sécurité
+        authService.logout();
+        navigate('/login');
       }
     }
   }, []);
@@ -202,12 +225,43 @@ const TaskList = () => {
             Salut {userName}
           </Typography>
           <Box>
-            <IconButton color="primary" onClick={() => handleOpenDialog()}>
-              <AddIcon />
-            </IconButton>
-            <IconButton color="primary" onClick={handleLogout} sx={{ ml: 1 }}>
-              <LogoutIcon />
-            </IconButton>
+            {isMobile ? (
+              <>
+                <IconButton
+                  onClick={handleOpenDialog}
+                  color="primary"
+                  sx={{ bgcolor: 'transparent', color: 'primary.main', boxShadow: 'none', border: 'none', '&:hover': { bgcolor: 'transparent' } }}
+                >
+                  <AddIcon />
+                </IconButton>
+                <IconButton
+                  onClick={handleLogout}
+                  color="primary"
+                  sx={{ ml: 1, bgcolor: 'transparent', color: 'primary.main', boxShadow: 'none', border: 'none', '&:hover': { bgcolor: 'transparent' } }}
+                >
+                  <LogoutIcon />
+                </IconButton>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="contained"
+                  startIcon={<AddIcon />}
+                  onClick={handleOpenDialog}
+                  sx={{ mr: 1 }}
+                >
+                  Nouvelle tâche
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<LogoutIcon />}
+                  onClick={handleLogout}
+                  sx={{ ml: 1 }}
+                >
+                  Déconnexion
+                </Button>
+              </>
+            )}
           </Box>
         </Box>
         <Typography variant="h6" component="h2" color="text.secondary" sx={{ mt: 1 }}>
@@ -310,9 +364,7 @@ const TaskList = () => {
       </Box>
 
       <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <DialogTitle>
-          {currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}
-        </DialogTitle>
+        <DialogTitle>{currentTask ? 'Modifier la tâche' : 'Nouvelle tâche'}</DialogTitle>
         <DialogContent>
           {formError && (
             <Typography color="error" align="center" gutterBottom>
