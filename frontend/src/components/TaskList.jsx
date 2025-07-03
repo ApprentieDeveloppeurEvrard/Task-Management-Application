@@ -97,6 +97,7 @@ const TaskList = () => {
   // Convertit le champ completed du backend en status pour l'affichage
   const mapTaskFromBackend = (task) => ({
     ...task,
+    _id: task._id || task.id, // S'assure que _id est toujours présent
     status: task.completed ? 'terminé' : 'à faire',
   });
 
@@ -112,11 +113,19 @@ const TaskList = () => {
       Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
       const tasks = await taskService.getTasks(params);
-      setTasks(tasks.map(mapTaskFromBackend));
+      const mappedTasks = tasks.map(mapTaskFromBackend);
+      console.log('Tâches récupérées et mappées :', mappedTasks);
+      setTasks(mappedTasks);
+      setFormError('');
     } catch (error) {
       if (error.message && error.message.toLowerCase().includes('auth')) {
+        setFormError('Session expirée ou non authentifié. Veuillez vous reconnecter.');
+        authService.logout();
         navigate('/login');
+      } else {
+        setFormError('Erreur lors de la récupération des tâches.');
       }
+      setTasks([]);
       console.error('Erreur lors de la récupération des tâches:', error);
     } finally {
       setLoading(false);
@@ -125,6 +134,7 @@ const TaskList = () => {
 
   const handleOpenDialog = (task = null) => {
     if (task) {
+      console.log("Tâche reçue pour modification :", task);
       setCurrentTask(task);
       setFormData({
         title: task.title,
@@ -169,8 +179,12 @@ const TaskList = () => {
       };
       delete dataToSend.status;
       console.log('Données de la tâche à envoyer:', dataToSend);
-      if (currentTask) {
-        console.log('Appel de updateTask');
+      if (currentTask && currentTask._id) {
+        if (!currentTask._id) {
+          setFormError("Impossible de modifier la tâche : identifiant manquant.");
+          return;
+        }
+        console.log('Appel de updateTask avec id:', currentTask._id);
         await taskService.updateTask(currentTask._id, dataToSend);
       } else {
         console.log('Appel de createTask');
@@ -180,7 +194,9 @@ const TaskList = () => {
       fetchTasks();
     } catch (error) {
       console.error('Erreur frontend lors de la sauvegarde de la tâche:', error);
-      let msg = 'Erreur lors de la sauvegarde de la tâche';
+      let msg = currentTask
+        ? 'Erreur lors de la mise à jour de la tâche'
+        : 'Erreur lors de la création de la tâche';
       if (error.response && error.response.data && error.response.data.error) {
         msg = error.response.data.error;
       } else if (error.message) {
@@ -345,7 +361,7 @@ const TaskList = () => {
                     </Typography>
                   </Box>
                   <Box>
-                    <IconButton edge="end" aria-label="edit" onClick={() => handleOpenDialog(task)} sx={{ p: 0.5 }}>
+                    <IconButton edge="end" aria-label="edit" onClick={() => handleOpenDialog(task)} sx={{ p: 0.5 }} disabled={!task._id}>
                       <EditIcon fontSize="small" />
                     </IconButton>
                     <IconButton edge="end" aria-label="delete" onClick={() => handleDelete(task._id)} sx={{ p: 0.5, ml: 1 }}>
